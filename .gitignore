@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+.next/
+
+# env files
+.env.local
+.env*.local
+
+# debug
+npm-debug.log*
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# seed scripts (not needed in production)
+seed-data.js
+seed-full.js
+sample-data.xlsx
