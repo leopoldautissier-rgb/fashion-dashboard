@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { DashboardStats } from '@/types';
+import { formatCurrency } from '@/lib/format';
 import { differenceInDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
 const MONTHLY_PROFIT_GOAL = 3000;
@@ -65,11 +66,10 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Profit goal */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold text-gray-700">Monthly Profit Goal</p>
-          <p className="text-sm text-gray-500">{monthProfit.toLocaleString('fr-FR')} / {MONTHLY_PROFIT_GOAL.toLocaleString('fr-FR')} EUR</p>
+          <p className="text-sm text-gray-500">{formatCurrency(monthProfit)} / {formatCurrency(MONTHLY_PROFIT_GOAL)}</p>
         </div>
         <div className="w-full bg-gray-100 rounded-full h-3">
           <div
@@ -80,15 +80,13 @@ export default function HomePage() {
         <p className="text-xs text-gray-400 mt-2">{goalPct.toFixed(0)}% reached this month</p>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard label="Total Items" value={stats.totalItems.toString()} subtitle={stats.totalInStock + ' in stock'} icon="📦" />
-        <StatCard label="Total Spent" value={stats.totalSpent.toLocaleString('fr-FR') + ' €'} subtitle="Purchase cost" icon="💸" />
-        <StatCard label="Revenue" value={stats.totalRevenue.toLocaleString('fr-FR') + ' €'} subtitle={stats.totalSold + ' items sold'} icon="💰" />
-        <StatCard label="Profit" value={stats.totalProfit.toLocaleString('fr-FR') + ' €'} subtitle={stats.averageMargin.toFixed(1) + '% margin'} icon="📈" highlight />
+        <StatCard label="Total Spent" value={formatCurrency(stats.totalSpent)} subtitle="Purchase cost" icon="💸" />
+        <StatCard label="Revenue" value={formatCurrency(stats.totalRevenue)} subtitle={stats.totalSold + ' items sold'} icon="💰" />
+        <StatCard label="Profit" value={formatCurrency(stats.totalProfit)} subtitle={stats.averageMargin.toFixed(1) + '% margin'} icon="📈" highlight />
       </div>
 
-      {/* MoM */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6">
         <div className="flex items-center gap-4">
           <div className={'text-2xl font-bold ' + (momChange >= 0 ? 'text-emerald-600' : 'text-red-500')}>
@@ -96,12 +94,11 @@ export default function HomePage() {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-700">vs last month</p>
-            <p className="text-xs text-gray-400">This month: {monthProfit.toLocaleString('fr-FR')} € | Last: {lastMonthProfit.toLocaleString('fr-FR')} €</p>
+            <p className="text-xs text-gray-400">This month: {formatCurrency(monthProfit)} | Last: {formatCurrency(lastMonthProfit)}</p>
           </div>
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <QuickAction href="/purchases/new" icon="+" title="Add Purchase" desc="Record a new item" color="brand" />
         <QuickAction href="/sales/new" icon="✓" title="Record Sale" desc="Mark an item as sold" color="emerald" />

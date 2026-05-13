@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import { PurchaseItem } from '@/types';
 import { subDays, subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
 
@@ -141,16 +142,16 @@ export default function SalesPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Revenue</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{totalRevenue.toLocaleString('fr-FR')} €</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalRevenue)}â‚¬</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Cost</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{totalCost.toLocaleString('fr-FR')} €</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalCost)}â‚¬</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Profit</p>
           <p className={'text-2xl font-bold mt-1 ' + (totalProfit >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-            {totalProfit >= 0 ? '+' : ''}{totalProfit.toLocaleString('fr-FR')} €
+            {totalProfit >= 0 ? '+' : ''}{totalProfit.toLocaleString('fr-FR')} â‚¬
           </p>
         </div>
       </div>
@@ -179,10 +180,10 @@ export default function SalesPage() {
                   <td className="px-4 py-3 font-medium text-gray-900">{item.brand}</td>
                   <td className="px-4 py-3 text-gray-600">{item.category}</td>
                   <td className="px-4 py-3 text-gray-600">{item.size}</td>
-                  <td className="px-4 py-3 text-right text-gray-500">{item.purchase_price.toLocaleString('fr-FR')} €</td>
-                  <td className="px-4 py-3 text-right text-gray-900">{(item.sale_price || 0).toLocaleString('fr-FR')} €</td>
+                  <td className="px-4 py-3 text-right text-gray-500">{item.purchase_price.toLocaleString('fr-FR')} â‚¬</td>
+                  <td className="px-4 py-3 text-right text-gray-900">{(item.sale_price || 0).toLocaleString('fr-FR')} â‚¬</td>
                   <td className={'px-4 py-3 text-right font-medium ' + (margin >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                    +{margin.toLocaleString('fr-FR')} € ({marginPct.toFixed(0)}%)
+                    +{margin.toLocaleString('fr-FR')} â‚¬ ({marginPct.toFixed(0)}%)
                   </td>
                 </tr>
               );
