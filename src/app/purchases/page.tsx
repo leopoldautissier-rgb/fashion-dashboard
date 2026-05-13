@@ -125,7 +125,7 @@ export default function PurchasesPage() {
       {/* Advanced Filters Panel */}
       {showFilters && (
         <div className="bg-white rounded-xl border border-brand-200 p-4 mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div>
               <label className="block text-xs text-brand-500 mb-1">Brand</label>
               <select value={filters.brand} onChange={e => setFilters(f => ({...f, brand: e.target.value}))} className="w-full text-xs">

@@ -92,16 +92,16 @@ export default function SalesPage() {
               {p.label}
             </button>
           ))}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 hidden sm:flex">
             <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPeriod('custom'); }} className="text-[12px] py-1.5 px-3 rounded-lg" />
-            <span className="text-[12px] text-gray-300">—</span>
+            <span className="text-[12px] text-gray-300">â€”</span>
             <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPeriod('custom'); }} className="text-[12px] py-1.5 px-3 rounded-lg" />
           </div>
         </div>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-5">
         <div className="glass-card rounded-2xl p-5">
           <p className="text-[13px] text-gray-400 mb-1">Revenue</p>
           <p className="text-2xl font-semibold text-gray-900 tracking-tight">{formatCurrency(totalRevenue)}</p>
@@ -139,9 +139,9 @@ export default function SalesPage() {
                   <td className="px-5 py-3.5 font-medium text-gray-900">{item.brand}</td>
                   <td className="px-5 py-3.5 text-gray-600">{item.category}</td>
                   <td className="px-5 py-3.5 text-gray-600">{item.size}</td>
-                  <td className="px-5 py-3.5 text-right text-gray-400">{item.purchase_price.toFixed(0)}€</td>
-                  <td className="px-5 py-3.5 text-right text-gray-900 font-medium">{(item.sale_price || 0).toFixed(0)}€</td>
-                  <td className={'px-5 py-3.5 text-right font-medium ' + (margin >= 0 ? 'text-green-600' : 'text-red-500')}>+{margin.toFixed(0)}€</td>
+                  <td className="px-5 py-3.5 text-right text-gray-400">{item.purchase_price.toFixed(0)}â‚¬</td>
+                  <td className="px-5 py-3.5 text-right text-gray-900 font-medium">{(item.sale_price || 0).toFixed(0)}â‚¬</td>
+                  <td className={'px-5 py-3.5 text-right font-medium ' + (margin >= 0 ? 'text-green-600' : 'text-red-500')}>+{margin.toFixed(0)}â‚¬</td>
                 </tr>
               );
             })}

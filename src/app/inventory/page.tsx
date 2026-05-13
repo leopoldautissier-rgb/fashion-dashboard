@@ -39,7 +39,7 @@ export default function InventoryPage() {
     <div>
       <h2 className="text-2xl font-semibold text-brand-900 mb-6">Inventory</h2>
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
         <div className="bg-white rounded-xl border border-brand-200 p-4">
           <p className="text-xs uppercase text-brand-500">Items in Stock</p>
           <p className="text-xl font-bold text-brand-900">{items.length}</p>
@@ -67,7 +67,7 @@ export default function InventoryPage() {
         <button onClick={() => setSortBy('price')} className={'px-3 py-1 rounded-full text-xs font-medium ' + (sortBy === 'price' ? 'bg-brand-900 text-white' : 'bg-brand-100 text-brand-700')}>Most expensive</button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
         {sortedItems.map(item => {
           const daysInStock = differenceInDays(today, new Date(item.purchase_date));
           const isOld = daysInStock > 30;
