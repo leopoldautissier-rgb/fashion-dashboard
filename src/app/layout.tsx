@@ -42,6 +42,7 @@ export default function RootLayout({
               <NavLink href="/analytics" label="Analytics" />
               <NavLink href="/trends" label="Best Sellers" />
               <NavLink href="/compare" label="Compare" />
+              <NavLink href="/print" label="QR Codes" />
               <NavLink href="/import" label="Import" />
             </div>
           </div>
@@ -62,11 +63,11 @@ export default function RootLayout({
         {/* Mobile bottom tab bar */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-gray-200/40 px-2 py-2 safe-bottom">
           <div className="flex items-center justify-around">
-            <TabLink href="/" icon="📊" label="Home" />
-            <TabLink href="/purchases" icon="🛍️" label="Buy" />
-            <TabLink href="/sales" icon="💰" label="Sell" />
-            <TabLink href="/inventory" icon="📦" label="Stock" />
-            <TabLink href="/analytics" icon="📈" label="Stats" />
+            <TabLink href="/" icon="ðŸ“Š" label="Home" />
+            <TabLink href="/purchases" icon="ðŸ›ï¸" label="Buy" />
+            <TabLink href="/sales" icon="ðŸ’°" label="Sell" />
+            <TabLink href="/inventory" icon="ðŸ“¦" label="Stock" />
+            <TabLink href="/analytics" icon="ðŸ“ˆ" label="Stats" />
           </div>
         </nav>
       </body>

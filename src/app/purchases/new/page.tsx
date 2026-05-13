@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { BRANDS, CATEGORIES, SIZES, PLATFORMS, CONDITIONS, COLORS } from '@/lib/constants';
+import { generateReference } from '@/lib/reference';
+import { BRANDS, CATEGORIES, SIZES, CONDITIONS, COLORS } from '@/lib/constants';
 
 export default function NewPurchasePage() {
   const router = useRouter();
@@ -15,8 +16,8 @@ export default function NewPurchasePage() {
     color: 'Black',
     purchase_price: '',
     purchase_date: new Date().toISOString().split('T')[0],
-    platform: 'Vinted',
     condition: 'Like new',
+    image_url: '',
     notes: '',
   });
 
@@ -24,9 +25,11 @@ export default function NewPurchasePage() {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent, addAnother: boolean) {
     e.preventDefault();
     setLoading(true);
+
+    const reference = await generateReference(form.category, form.color);
 
     const { error } = await supabase.from('items').insert({
       brand: form.brand,
@@ -35,202 +38,140 @@ export default function NewPurchasePage() {
       color: form.color,
       purchase_price: parseFloat(form.purchase_price),
       purchase_date: form.purchase_date,
-      platform: form.platform,
+      platform: 'Vinted',
       condition: form.condition,
+      image_url: form.image_url || null,
       notes: form.notes || null,
       status: 'In Stock',
+      reference: reference,
     });
 
     setLoading(false);
 
     if (error) {
-      alert('Error saving item: ' + error.message);
+      alert('Error: ' + error.message);
       return;
     }
 
-    router.push('/purchases');
-  }
-
-  async function handleSubmitAndNew(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    const { error } = await supabase.from('items').insert({
-      brand: form.brand,
-      category: form.category,
-      size: form.size,
-      color: form.color,
-      purchase_price: parseFloat(form.purchase_price),
-      purchase_date: form.purchase_date,
-      platform: form.platform,
-      condition: form.condition,
-      notes: form.notes || null,
-      status: 'In Stock',
-    });
-
-    setLoading(false);
-
-    if (error) {
-      alert('Error saving item: ' + error.message);
-      return;
+    if (addAnother) {
+      setForm(prev => ({ ...prev, purchase_price: '', image_url: '', notes: '' }));
+    } else {
+      router.push('/purchases');
     }
-
-    // Reset price and notes, keep other fields for batch entry
-    setForm(prev => ({ ...prev, purchase_price: '', notes: '' }));
   }
 
   return (
-    <div className="max-w-2xl">
-      <h2 className="text-2xl font-semibold text-brand-900 mb-6">Add Purchase</h2>
+    <div className="max-w-lg mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight">Add Purchase</h1>
+        <p className="text-[14px] text-gray-500 mt-1">A reference will be auto-generated.</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Brand */}
-        <div>
-          <label className="block text-sm font-medium text-brand-700 mb-1">Brand</label>
-          <select
-            value={form.brand}
-            onChange={e => updateField('brand', e.target.value)}
-            className="w-full"
-          >
-            {BRANDS.map(b => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="block text-sm font-medium text-brand-700 mb-1">Category</label>
-          <select
-            value={form.category}
-            onChange={e => updateField('category', e.target.value)}
-            className="w-full"
-          >
-            {CATEGORIES.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Size and Color - side by side */}
-        <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={e => handleSubmit(e, false)} className="space-y-4">
+        <div className="glass-card rounded-2xl p-5 space-y-4">
+          {/* Brand */}
           <div>
-            <label className="block text-sm font-medium text-brand-700 mb-1">Size</label>
-            <select
-              value={form.size}
-              onChange={e => updateField('size', e.target.value)}
-              className="w-full"
-            >
-              {SIZES.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
+            <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Brand</label>
+            <select value={form.brand} onChange={e => updateField('brand', e.target.value)} className="w-full">
+              {BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-brand-700 mb-1">Color</label>
-            <select
-              value={form.color}
-              onChange={e => updateField('color', e.target.value)}
-              className="w-full"
-            >
-              {COLORS.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-        </div>
 
-        {/* Price and Date - side by side */}
-        <div className="grid grid-cols-2 gap-4">
+          {/* Category + Size */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Category</label>
+              <select value={form.category} onChange={e => updateField('category', e.target.value)} className="w-full">
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Size</label>
+              <select value={form.size} onChange={e => updateField('size', e.target.value)} className="w-full">
+                {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Color + Condition */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Color</label>
+              <select value={form.color} onChange={e => updateField('color', e.target.value)} className="w-full">
+                {COLORS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Condition</label>
+              <select value={form.condition} onChange={e => updateField('condition', e.target.value)} className="w-full">
+                {CONDITIONS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Price + Date */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Price (€)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={form.purchase_price}
+                onChange={e => updateField('purchase_price', e.target.value)}
+                placeholder="0"
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Date</label>
+              <input type="date" value={form.purchase_date} onChange={e => updateField('purchase_date', e.target.value)} className="w-full" />
+            </div>
+          </div>
+
+          {/* Image URL */}
           <div>
-            <label className="block text-sm font-medium text-brand-700 mb-1">
-              Purchase Price (EUR)
-            </label>
+            <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Image URL (optional)</label>
             <input
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              value={form.purchase_price}
-              onChange={e => updateField('purchase_price', e.target.value)}
-              placeholder="0.00"
+              type="url"
+              value={form.image_url}
+              onChange={e => updateField('image_url', e.target.value)}
+              placeholder="https://..."
               className="w-full"
             />
           </div>
+
+          {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-brand-700 mb-1">Purchase Date</label>
+            <label className="block text-[13px] font-medium text-gray-500 mb-1.5">Notes (optional)</label>
             <input
-              type="date"
-              value={form.purchase_date}
-              onChange={e => updateField('purchase_date', e.target.value)}
+              type="text"
+              value={form.notes}
+              onChange={e => updateField('notes', e.target.value)}
+              placeholder="Any details..."
               className="w-full"
             />
           </div>
-        </div>
-
-        {/* Platform and Condition - side by side */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-brand-700 mb-1">Platform</label>
-            <select
-              value={form.platform}
-              onChange={e => updateField('platform', e.target.value)}
-              className="w-full"
-            >
-              {PLATFORMS.map(p => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-brand-700 mb-1">Condition</label>
-            <select
-              value={form.condition}
-              onChange={e => updateField('condition', e.target.value)}
-              className="w-full"
-            >
-              {CONDITIONS.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Notes */}
-        <div>
-          <label className="block text-sm font-medium text-brand-700 mb-1">Notes (optional)</label>
-          <textarea
-            value={form.notes}
-            onChange={e => updateField('notes', e.target.value)}
-            rows={2}
-            placeholder="Any details about this item..."
-            className="w-full"
-          />
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3">
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-brand-900 text-white rounded-lg hover:bg-brand-800 disabled:opacity-50 text-sm font-medium"
+            className="flex-1 py-3 bg-blue-500 text-white rounded-xl text-[14px] font-semibold hover:bg-blue-600 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Saving...' : 'Save'}
           </button>
           <button
             type="button"
-            onClick={handleSubmitAndNew}
+            onClick={e => handleSubmit(e, true)}
             disabled={loading}
-            className="px-5 py-2.5 bg-brand-100 text-brand-900 rounded-lg hover:bg-brand-200 disabled:opacity-50 text-sm font-medium"
+            className="flex-1 py-3 bg-gray-100 text-gray-900 rounded-xl text-[14px] font-semibold hover:bg-gray-200 disabled:opacity-50 transition-colors"
           >
-            Save & Add Another
+            Save & Next
           </button>
-          <a
-            href="/purchases"
-            className="px-5 py-2.5 text-brand-600 hover:text-brand-900 text-sm font-medium flex items-center"
-          >
-            Cancel
-          </a>
         </div>
       </form>
     </div>
