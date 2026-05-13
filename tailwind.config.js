@@ -4,19 +4,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d6fe',
-          300: '#a4b8fc',
-          400: '#8098f9',
-          500: '#6172f3',
-          600: '#444ce7',
-          700: '#3538cd',
-          800: '#2d31a6',
-          900: '#2b2f83',
-          950: '#1a1b4b',
+        apple: {
+          blue: '#0071e3',
+          gray: '#86868b',
+          dark: '#1d1d1f',
+          light: '#f5f5f7',
+          card: '#ffffff',
         },
+      },
+      borderRadius: {
+        '2xl': '16px',
+        '3xl': '20px',
+      },
+      boxShadow: {
+        'apple': '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)',
+        'apple-lg': '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+        'apple-xl': '0 8px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04)',
       },
     },
   },

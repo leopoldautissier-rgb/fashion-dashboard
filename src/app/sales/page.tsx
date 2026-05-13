@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { formatCurrency } from '@/lib/format';
 import { PurchaseItem } from '@/types';
-import { subDays, subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
+import { formatCurrency } from '@/lib/format';
+import { subDays, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 export default function SalesPage() {
   const [items, setItems] = useState<PurchaseItem[]>([]);
@@ -15,11 +15,7 @@ export default function SalesPage() {
   useEffect(() => { fetchSoldItems(); }, []);
 
   async function fetchSoldItems() {
-    const { data } = await supabase
-      .from('items')
-      .select('*')
-      .eq('status', 'Sold')
-      .order('sale_date', { ascending: false });
+    const { data } = await supabase.from('items').select('*').eq('status', 'Sold').order('sale_date', { ascending: false });
     if (data) setItems(data as PurchaseItem[]);
   }
 
@@ -27,37 +23,14 @@ export default function SalesPage() {
     setPeriod(p);
     const today = new Date();
     switch (p) {
-      case '7d':
-        setDateFrom(subDays(today, 7).toISOString().split('T')[0]);
-        setDateTo(today.toISOString().split('T')[0]);
-        break;
-      case '30d':
-        setDateFrom(subDays(today, 30).toISOString().split('T')[0]);
-        setDateTo(today.toISOString().split('T')[0]);
-        break;
-      case 'this-month':
-        setDateFrom(startOfMonth(today).toISOString().split('T')[0]);
-        setDateTo(endOfMonth(today).toISOString().split('T')[0]);
-        break;
-      case 'last-month':
-        setDateFrom(startOfMonth(subMonths(today, 1)).toISOString().split('T')[0]);
-        setDateTo(endOfMonth(subMonths(today, 1)).toISOString().split('T')[0]);
-        break;
-      case '3m':
-        setDateFrom(subMonths(today, 3).toISOString().split('T')[0]);
-        setDateTo(today.toISOString().split('T')[0]);
-        break;
-      case '6m':
-        setDateFrom(subMonths(today, 6).toISOString().split('T')[0]);
-        setDateTo(today.toISOString().split('T')[0]);
-        break;
-      case '12m':
-        setDateFrom(subMonths(today, 12).toISOString().split('T')[0]);
-        setDateTo(today.toISOString().split('T')[0]);
-        break;
-      default:
-        setDateFrom('');
-        setDateTo('');
+      case '7d': setDateFrom(subDays(today, 7).toISOString().split('T')[0]); setDateTo(today.toISOString().split('T')[0]); break;
+      case '30d': setDateFrom(subDays(today, 30).toISOString().split('T')[0]); setDateTo(today.toISOString().split('T')[0]); break;
+      case 'this-month': setDateFrom(startOfMonth(today).toISOString().split('T')[0]); setDateTo(endOfMonth(today).toISOString().split('T')[0]); break;
+      case 'last-month': setDateFrom(startOfMonth(subMonths(today, 1)).toISOString().split('T')[0]); setDateTo(endOfMonth(subMonths(today, 1)).toISOString().split('T')[0]); break;
+      case '3m': setDateFrom(subMonths(today, 3).toISOString().split('T')[0]); setDateTo(today.toISOString().split('T')[0]); break;
+      case '6m': setDateFrom(subMonths(today, 6).toISOString().split('T')[0]); setDateTo(today.toISOString().split('T')[0]); break;
+      case '12m': setDateFrom(subMonths(today, 12).toISOString().split('T')[0]); setDateTo(today.toISOString().split('T')[0]); break;
+      default: setDateFrom(''); setDateTo('');
     }
   }
 
@@ -70,17 +43,10 @@ export default function SalesPage() {
   async function exportToExcel() {
     const XLSX = (await import('xlsx')).default;
     const exportData = filteredItems.map(item => ({
-      'Sale Date': item.sale_date,
-      'Brand': item.brand,
-      'Category': item.category,
-      'Size': item.size,
-      'Color': item.color,
-      'Purchase Price': item.purchase_price,
-      'Sale Price': item.sale_price,
-      'Margin': (item.sale_price || 0) - item.purchase_price,
-      'Margin %': item.sale_price ? (((item.sale_price - item.purchase_price) / item.sale_price) * 100).toFixed(1) + '%' : '',
+      'Sale Date': item.sale_date, 'Brand': item.brand, 'Category': item.category,
+      'Size': item.size, 'Color': item.color, 'Purchase Price': item.purchase_price,
+      'Sale Price': item.sale_price, 'Margin': (item.sale_price || 0) - item.purchase_price,
       'Platform': item.platform,
-      'Purchase Date': item.purchase_date,
     }));
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
@@ -91,110 +57,101 @@ export default function SalesPage() {
   const totalRevenue = filteredItems.reduce((sum, i) => sum + (i.sale_price || 0), 0);
   const totalCost = filteredItems.reduce((sum, i) => sum + i.purchase_price, 0);
   const totalProfit = totalRevenue - totalCost;
-  const avgMargin = filteredItems.length > 0 ? (totalProfit / filteredItems.length) : 0;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Sales</h2>
-        <div className="flex gap-3">
-          <button onClick={exportToExcel} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">Export Excel</button>
-          <a href="/sales/new" className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium">+ Record Sale</a>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Sales</h1>
+          <p className="text-[15px] text-gray-500 mt-1">{filteredItems.length} transactions</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={exportToExcel} className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-[13px] font-medium hover:bg-gray-200 transition-colors">Export</button>
+          <a href="/sales/new" className="px-4 py-2 rounded-full bg-blue-500 text-white text-[13px] font-medium hover:bg-blue-600 transition-colors">+ Record Sale</a>
         </div>
       </div>
 
-      {/* Period filter */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6">
-        <div className="flex items-center gap-2 flex-wrap mb-3">
-          <span className="text-sm font-medium text-gray-600">Period:</span>
+      {/* Period selector */}
+      <div className="glass-card rounded-2xl p-4">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {[
-            { key: 'all', label: 'All time' },
-            { key: '7d', label: '7 days' },
-            { key: '30d', label: '30 days' },
+            { key: 'all', label: 'All' },
+            { key: '7d', label: '7d' },
+            { key: '30d', label: '30d' },
             { key: 'this-month', label: 'This month' },
             { key: 'last-month', label: 'Last month' },
             { key: '3m', label: '3 months' },
             { key: '6m', label: '6 months' },
-            { key: '12m', label: '12 months' },
+            { key: '12m', label: '1 year' },
           ].map(p => (
             <button
               key={p.key}
               onClick={() => applyPeriod(p.key)}
-              className={'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ' + (period === p.key ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')}
+              className={'px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-all ' + (period === p.key ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100')}
             >
               {p.label}
             </button>
           ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">Custom:</span>
-          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPeriod('custom'); }} className="text-xs" />
-          <span className="text-xs text-gray-400">to</span>
-          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPeriod('custom'); }} className="text-xs" />
+          <div className="ml-auto flex items-center gap-2">
+            <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPeriod('custom'); }} className="text-[12px] py-1.5 px-3 rounded-lg" />
+            <span className="text-[12px] text-gray-300">—</span>
+            <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPeriod('custom'); }} className="text-[12px] py-1.5 px-3 rounded-lg" />
+          </div>
         </div>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Items Sold</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{filteredItems.length}</p>
+      {/* Summary */}
+      <div className="grid grid-cols-3 gap-5">
+        <div className="glass-card rounded-2xl p-5">
+          <p className="text-[13px] text-gray-400 mb-1">Revenue</p>
+          <p className="text-2xl font-semibold text-gray-900 tracking-tight">{formatCurrency(totalRevenue)}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Revenue</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalRevenue)}â‚¬</p>
+        <div className="glass-card rounded-2xl p-5">
+          <p className="text-[13px] text-gray-400 mb-1">Cost</p>
+          <p className="text-2xl font-semibold text-gray-900 tracking-tight">{formatCurrency(totalCost)}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Cost</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalCost)}â‚¬</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Profit</p>
-          <p className={'text-2xl font-bold mt-1 ' + (totalProfit >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-            {totalProfit >= 0 ? '+' : ''}{totalProfit.toLocaleString('fr-FR')} â‚¬
-          </p>
+        <div className="glass-card rounded-2xl p-5">
+          <p className="text-[13px] text-gray-400 mb-1">Profit</p>
+          <p className={'text-2xl font-semibold tracking-tight ' + (totalProfit >= 0 ? 'text-green-600' : 'text-red-500')}>{formatCurrency(totalProfit)}</p>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-500">Sale Date</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500">Brand</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500">Category</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-500">Size</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500">Bought</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500">Sold</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500">Margin</th>
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <table className="w-full text-[13px]">
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="text-left px-5 py-3.5 font-medium text-gray-400">Date</th>
+              <th className="text-left px-5 py-3.5 font-medium text-gray-400">Brand</th>
+              <th className="text-left px-5 py-3.5 font-medium text-gray-400">Category</th>
+              <th className="text-left px-5 py-3.5 font-medium text-gray-400">Size</th>
+              <th className="text-right px-5 py-3.5 font-medium text-gray-400">Bought</th>
+              <th className="text-right px-5 py-3.5 font-medium text-gray-400">Sold</th>
+              <th className="text-right px-5 py-3.5 font-medium text-gray-400">Margin</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
-            {filteredItems.slice(0, 100).map(item => {
+          <tbody>
+            {filteredItems.slice(0, 50).map(item => {
               const margin = (item.sale_price || 0) - item.purchase_price;
-              const marginPct = item.sale_price ? (margin / item.sale_price) * 100 : 0;
               return (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-500">{item.sale_date ? new Date(item.sale_date).toLocaleDateString('fr-FR') : '-'}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{item.brand}</td>
-                  <td className="px-4 py-3 text-gray-600">{item.category}</td>
-                  <td className="px-4 py-3 text-gray-600">{item.size}</td>
-                  <td className="px-4 py-3 text-right text-gray-500">{item.purchase_price.toLocaleString('fr-FR')} â‚¬</td>
-                  <td className="px-4 py-3 text-right text-gray-900">{(item.sale_price || 0).toLocaleString('fr-FR')} â‚¬</td>
-                  <td className={'px-4 py-3 text-right font-medium ' + (margin >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                    +{margin.toLocaleString('fr-FR')} â‚¬ ({marginPct.toFixed(0)}%)
-                  </td>
+                <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td className="px-5 py-3.5 text-gray-400">{item.sale_date ? new Date(item.sale_date).toLocaleDateString('fr-FR') : '-'}</td>
+                  <td className="px-5 py-3.5 font-medium text-gray-900">{item.brand}</td>
+                  <td className="px-5 py-3.5 text-gray-600">{item.category}</td>
+                  <td className="px-5 py-3.5 text-gray-600">{item.size}</td>
+                  <td className="px-5 py-3.5 text-right text-gray-400">{item.purchase_price.toFixed(0)}€</td>
+                  <td className="px-5 py-3.5 text-right text-gray-900 font-medium">{(item.sale_price || 0).toFixed(0)}€</td>
+                  <td className={'px-5 py-3.5 text-right font-medium ' + (margin >= 0 ? 'text-green-600' : 'text-red-500')}>+{margin.toFixed(0)}€</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {filteredItems.length > 100 && (
-          <div className="text-center py-3 text-sm text-gray-400 border-t border-gray-50">Showing first 100 of {filteredItems.length}</div>
+        {filteredItems.length > 50 && (
+          <div className="text-center py-4 text-[13px] text-gray-400 border-t border-gray-50">Showing 50 of {filteredItems.length}</div>
         )}
         {filteredItems.length === 0 && (
-          <div className="text-center py-12 text-gray-400">No sales in this period.</div>
+          <div className="text-center py-16 text-gray-400 text-[15px]">No sales in this period</div>
         )}
       </div>
     </div>
