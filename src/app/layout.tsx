@@ -14,20 +14,20 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="min-h-screen">
-        <nav className="bg-white border-b border-brand-200 px-6 py-4">
+        <nav className="bg-brand-950 px-6 py-3.5 shadow-lg">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="/" className="text-xl font-semibold text-brand-900">
+            <a href="/" className="text-lg font-bold text-white tracking-tight">
               Fashion Resale
             </a>
-            <div className="flex gap-5 text-sm">
-              <a href="/" className="text-brand-700 hover:text-brand-900">Dashboard</a>
-              <a href="/purchases" className="text-brand-700 hover:text-brand-900">Purchases</a>
-              <a href="/sales" className="text-brand-700 hover:text-brand-900">Sales</a>
-              <a href="/inventory" className="text-brand-700 hover:text-brand-900">Inventory</a>
-              <a href="/analytics" className="text-brand-700 hover:text-brand-900">Analytics</a>
-              <a href="/trends" className="text-brand-700 hover:text-brand-900">Best Sellers</a>
-              <a href="/compare" className="text-brand-700 hover:text-brand-900">Compare</a>
-              <a href="/import" className="text-brand-700 hover:text-brand-900">Import</a>
+            <div className="flex gap-1">
+              <NavLink href="/" label="Dashboard" />
+              <NavLink href="/purchases" label="Purchases" />
+              <NavLink href="/sales" label="Sales" />
+              <NavLink href="/inventory" label="Inventory" />
+              <NavLink href="/analytics" label="Analytics" />
+              <NavLink href="/trends" label="Best Sellers" />
+              <NavLink href="/compare" label="Compare" />
+              <NavLink href="/import" label="Import" />
             </div>
           </div>
         </nav>
@@ -36,5 +36,16 @@ export default function RootLayout({
         </main>
       </body>
     </html>
+  );
+}
+
+function NavLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      className="px-3 py-1.5 rounded-md text-sm text-brand-200 hover:text-white hover:bg-brand-800 transition-colors"
+    >
+      {label}
+    </a>
   );
 }
